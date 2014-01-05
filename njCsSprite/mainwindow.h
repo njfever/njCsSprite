@@ -30,7 +30,30 @@ private:
     void createToolbarButtons();
 
 private slots:
-    void newFile();
+    // menu 'File'
+    void quitProgram();
+    void newProject();
+    void openProject();
+    void saveProject();
+    void saveProjectAs();
+
+    // menu 'Edit'
+    void option();
+    void imageManager();
+    void addImage();
+    void removeImage();
+    void generateDemo();
+
+    //menu 'Range'
+    void rangeRandom();
+    void rangeHorizontal();
+    void rangeVertical();
+    void rangeMinArea();
+
+    //menu 'Tool'
+    void analyseImage();
+    void manualOperate();
+    void autoSplit();
 };
 
 #endif // MAINWINDOW_H
