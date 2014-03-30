@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/img/close.png</file>
+        <file>res/img/deselectAll.png</file>
+        <file>res/img/fixed.png</file>
+        <file>res/img/genDemo.png</file>
+        <file>res/img/new.png</file>
+        <file>res/img/open.png</file>
+        <file>res/img/option.png</file>
+        <file>res/img/removeImage.png</file>
+        <file>res/img/save.png</file>
+        <file>res/img/select.png</file>
+        <file>res/img/selectAll.png</file>
+        <file>res/img/addImage.png</file>
+        <file>res/img/horLine.png</file>
+        <file>res/img/verLine.png</file>
+        <file>res/img/autoLine.png</file>
+        <file>res/lang/njcs_chn.qm</file>
+        <file>res/lang/njcs_en.qm</file>
+        <file>LICENSE</file>
+    </qresource>
+</RCC>
