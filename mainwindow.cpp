@@ -7,7 +7,7 @@
 #include <QXmlStreamReader>
 #include <QFileDialog>
 #include <QImage>
-
+#include <QDesktopWidget>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -46,6 +46,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_actions[ActionKey::SpriteLock]->setChecked(true);
     lockSprites();
+
+    if(QApplication::desktop())
+    {
+        QRect rect = QApplication::desktop()->geometry();
+        move(rect.width() - width() >> 1, rect.height() - height() >> 1);
+    }
 }
 
 
@@ -203,13 +209,13 @@ void MainWindow::createActions()
 
     // Auto
     act = new QAction(QIcon(":/res/img/autoLine.png"), tr("&Auto"), this);
-    act->setStatusTip(tr("Make items close together by algorithm."));
+    act->setStatusTip(tr("Make items close together."));
     connect(act, SIGNAL(triggered()), this, SLOT(arrangeAuto()));
     m_actions[ActionKey::ArrangeAuto] = act;
 
     // Option
     act = new QAction(QIcon(":/res/img/option.png"), tr("&Option..."), this);
-    act->setStatusTip(tr("Setup arrange parampeter."));
+    act->setStatusTip(tr("Setup arranger parampeter."));
     connect(act, SIGNAL(triggered()), this, SLOT(arrangeOption()));
     m_actions[ActionKey::ArrangeOption] = act;
 
@@ -686,12 +692,12 @@ int MainWindow::createCssSpriteImage(const QString &strFile)
     if(strFile.endsWith(QString("png")))
     {
         img = QImage(rect.width(), rect.height(), QImage::Format_ARGB32);
-        img.fill(QColor(0, 0, 0, 0));
+        img.fill(Qt::transparent);
     }
     else
     {
         img = QImage(rect.width(), rect.height(), QImage::Format_RGB32);
-        img.fill(QColor(255, 255, 255));
+        img.fill(Qt::white);
     }
 
     CSprite* sp = NULL;
@@ -755,7 +761,7 @@ void MainWindow::openProject()
 
     closeProject();
 
-    QString strPath = QFileDialog::getExistingDirectory(this, tr("Choose Project's Directory"), m_strWorkDirectory);
+    QString strPath = QFileDialog::getExistingDirectory(this, tr("Select Project's Directory"), m_strWorkDirectory, QFileDialog::DontUseNativeDialog);
 
     if(strPath.length() < 1)
     {
@@ -763,7 +769,7 @@ void MainWindow::openProject()
     }
 
 
-    m_strWorkDirectory = strPath + (strPath.endsWith(QString("/"))?"":"/");
+    m_strWorkDirectory = strPath + (strPath.endsWith(QDir::separator())?"":QString(QDir::separator()));
     QString xmlFile = m_strWorkDirectory + STR_MY_PROJ_XML_FILE_NAME;
     if(0 == loadConfigFromXml(xmlFile))
     {
@@ -810,7 +816,7 @@ void MainWindow::saveProject()
 
 void MainWindow::saveProjectAs()
 {
-    QString strPath = QFileDialog::getExistingDirectory(this, tr("Choose Directory To Save"), m_strWorkDirectory);
+    QString strPath = QFileDialog::getExistingDirectory(this, tr("Select Directory"), m_strWorkDirectory, QFileDialog::DontUseNativeDialog);
 
     if(strPath.length() < 1)
     {
@@ -826,6 +832,8 @@ void MainWindow::setupProject()
     CSetupProjectDlg setupDlg;
     setupDlg.setDocName(m_projConfig.strDocName);
     setupDlg.setCanvasSize(m_spriteMgr->width(), m_spriteMgr->height());
+    setupDlg.move(pos().x() + ((size().width() - setupDlg.size().width()) >> 1),
+                  pos().y() + ((size().height() - setupDlg.size().height()) >> 1));
     if(QDialog::Accepted == setupDlg.exec())
     {
         m_projConfig.strDocName = setupDlg.getDocName();
@@ -950,7 +958,8 @@ void MainWindow::lockSprites()
 void MainWindow::arrangeOption()
 {
     CArrangeOptionDlg dlg;
-
+    dlg.move(pos().x() + ((size().width() - dlg.size().width()) >> 1),
+             pos().y() + ((size().height() - dlg.size().height()) >> 1));
     dlg.setOptionValue(m_projConfig);
     if(QDialog::Accepted == dlg.exec())
     {
@@ -959,8 +968,8 @@ void MainWindow::arrangeOption()
 
          if(m_spriteMgr->setArrangerParam(pc) != 0)
          {
-             QMessageBox::warning(this, tr("Applay arrange parameter failed!")
-                                  ,tr("Applay arrange parameter failed!\n Now will be restore parameter."));
+             QMessageBox::warning(this, tr("Apply parameter failed!")
+                                  ,tr("Apply parameter failed!\n Now will be restore parameter."));
              m_spriteMgr->setArrangerParam(m_projConfig);
          }
          else
@@ -975,7 +984,8 @@ void MainWindow::addImage()
     int err = 0;
     QFileDialog fd;
     fd.setWindowTitle(tr("Select file to add"));
-    fd.setParent(this);
+    //fd.setParent(this);
+    fd.setOption(QFileDialog::DontUseNativeDialog);
     QStringList sl;
     sl<<tr("Image files (*.bmp *.jpg *.png *.gif)");
     sl<<tr("All files (*.*)");
@@ -999,7 +1009,7 @@ void MainWindow::addImage()
             {
                 if(QMessageBox::No == QMessageBox::warning(this,
                                                            tr("Add image file failed"),
-                                                           tr("Can not add file:<b>%1</b>.\n Would you go on load remain files?")
+                                                           tr("Can not add file:<b>%1</b>.\n Would you want to load remain file(s)?")
                                                            .arg(file),
                                                            QMessageBox::Yes | QMessageBox::No,
                                                            QMessageBox::Yes))
@@ -1051,7 +1061,10 @@ void MainWindow::generateDemo()
 {
     QFileDialog fd;
     fd.setWindowTitle(tr("Select file to create"));
-    fd.setParent(this);
+    //fd.setParent(this);
+
+    fd.setOption(QFileDialog::DontUseNativeDialog);
+
     QStringList sl;
     sl<<tr("Html file (*.htm)");
     fd.setNameFilters(sl);
@@ -1128,6 +1141,8 @@ void MainWindow::arrangeHorizontal()
 {
     updateSpriteFixedStatus();
     CArrangerCtrlDlg* dlg = new CArrangerCtrlDlg();
+    dlg->move(pos().x() + ((size().width() - dlg->size().width()) >> 1),
+             pos().y() + ((size().height() - dlg->size().height()) >> 1));
     dlg->setArrangeType(m_spriteMgr, 1);
 
     dlg->show();
@@ -1137,6 +1152,8 @@ void MainWindow::arrangeVertical()
 {
     updateSpriteFixedStatus();
     CArrangerCtrlDlg* dlg = new CArrangerCtrlDlg();
+    dlg->move(pos().x() + ((size().width() - dlg->size().width()) >> 1),
+             pos().y() + ((size().height() - dlg->size().height()) >> 1));
     dlg->setArrangeType(m_spriteMgr, 2);
 
     dlg->show();
@@ -1146,6 +1163,8 @@ void MainWindow::arrangeAuto()
 {
     updateSpriteFixedStatus();
     CArrangerCtrlDlg* dlg = new CArrangerCtrlDlg();
+    dlg->move(pos().x() + ((size().width() - dlg->size().width()) >> 1),
+             pos().y() + ((size().height() - dlg->size().height()) >> 1));
     dlg->setArrangeType(m_spriteMgr, 0);
 
     dlg->exec();
@@ -1160,7 +1179,23 @@ void MainWindow::aboutProgram()
 
     QTextStream ts(&fileLicense);
 
-    QMessageBox::information(this, STR_MY_TITLE, ts.readAll());
+    QString strLicense = ts.readAll();
+    strLicense.replace(" ", "&nbsp;");
+    strLicense.replace("\n", "<br />");
+
+    QRegExp reg("http[s]?://[a-zA-z0-9/\.&#_=]*");
+    int pos = reg.indexIn(strLicense);
+
+    if(pos >= 0)
+    {
+        QString strTemp = strLicense.mid(pos, reg.matchedLength());
+        QString strUrl = strTemp;//strTemp.mid(6, strTemp.length() - 13);
+        strUrl = "<a href=\"" + strUrl + "\" >" + strUrl + "</a>";
+        strLicense.replace(strTemp, strUrl);
+    }
+
+
+    QMessageBox::information(this, STR_MY_TITLE, strLicense);
 
     fileLicense.close();
 }
@@ -1175,14 +1210,14 @@ void MainWindow::switchLanguage(QAction *act)
     act->setChecked(true);
     m_settings->setValue(STR_MY_LANGUAGE, act->data());
 
-    QString strTips = tr("LanguageChose");
+    QString strTips = tr("Language");
 
     QTranslator translator;
     translator.load(QString(":/res/lang/njcs_%1.qm").arg(act->data().toString().toLower()));
-    strTips = translator.translate("MainWindow", "LanguageChose");
+    strTips = translator.translate("MainWindow", "Language");
     if(strTips.length() == 0)
     {
-        strTips = "Your chose has been saved, please <b>Restart Program</b> to effect.";
+        strTips = "Specified language has been saved, please <b>Restart Program</b> to reload config.";
     }
 
     QMessageBox::information(this, STR_MY_TITLE, strTips);
@@ -1276,8 +1311,8 @@ int MainWindow::loadConfigFromXml(const QString& strXmlFilePath)
             else if(tagName == QString("image").toLower())
             {
                 QPoint point;
-                point.setX(sr.attributes().value("left").toInt());
-                point.setY(sr.attributes().value("top").toInt());
+                point.setX(sr.attributes().value("left").toString().toInt());
+                point.setY(sr.attributes().value("top").toString().toInt());
 
                 QString strFile = sr.attributes().value("file").toString();
                 if(QDir::isRelativePath(strFile))

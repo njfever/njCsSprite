@@ -6,7 +6,7 @@
 #ifndef CARRANGER_H
 #define CARRANGER_H
 
-#include "_mingw.h"
+#include <stdint.h>
 #include "dataDefine.h"
 #include <QObject>
 #include <QList>

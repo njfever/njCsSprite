@@ -6,7 +6,8 @@
 #ifndef CMYCRC32_H
 #define CMYCRC32_H
 
-#include "_mingw.h"
+#include <stdint.h>
+#include <stddef.h>
 
 class CMyCRC32
 {

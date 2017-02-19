@@ -9,9 +9,16 @@
 #include <QMainWindow>
 #include <QSplitter>
 #include <QFocusEvent>
-#include <QtWidgets>
+//#include <QtWidgets>
+#include <QStandardItemModel>
+#include <QStyleFactory>
+#include <QBoxLayout>
+#include <QGroupBox>
+#include <QTextEdit>
 #include <QActionGroup>
 #include <QSettings>
+#include <QTranslator>
+#include <QGraphicsSceneMouseEvent>
 
 #include "dataDefine.h"
 #include "cspritemgr.h"
