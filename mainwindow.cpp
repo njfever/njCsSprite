@@ -858,8 +858,9 @@ void MainWindow::switchFixed()
 
 void MainWindow::rowSelectionChanged()
 {
-    m_spriteMgr->update();
     bool bSelected = false;
+
+    if(!m_spriteMgr) return;
 
     if(!m_bIsSceneMouseEvent)
     {
